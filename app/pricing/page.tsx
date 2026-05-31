@@ -239,7 +239,7 @@ export default function PricingPage() {
             },
             {
               q: 'Can I get a custom plan?',
-              a: 'For enterprise or institutional licensing, please contact our sales team at sales@innovativeflow.com',
+              a: 'For enterprise or institutional licensing, please contact our sales team at sales@focusedgov.com',
             },
           ].map((faq, idx) => (
             <div key={idx} className="border-b border-border pb-6">
@@ -255,7 +255,7 @@ export default function PricingPage() {
         <div className="rounded-lg bg-secondary/50 border border-border p-8 text-center space-y-6">
           <h2 className="text-3xl font-semibold">Ready to start learning?</h2>
           <p className="text-muted-foreground">
-            Join thousands of students who are acing their exams with InnovativeFlow. Start your free trial today—no credit card required.
+            Join thousands of students who are acing their exams with FocusedGov. Start your free trial today—no credit card required.
           </p>
           <Link href="/signup">
             <Button size="lg" className="bg-primary hover:bg-primary/90">

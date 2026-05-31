@@ -138,8 +138,8 @@ export default function PaymentSuccessPage() {
               <Mail className="w-5 h-5 text-primary flex-shrink-0" />
               <div>
                 <p className="font-semibold">Need Help?</p>
-                <p className="text-muted-foreground text-xs">
-                  Contact our support team at support@innovativeflow.com
+                  <p className="text-muted-foreground text-xs">
+                  Contact our support team at support@focusedgov.com
                 </p>
               </div>
             </div>

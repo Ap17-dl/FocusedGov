@@ -15,7 +15,7 @@ export default function LandingPage() {
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                 <Brain className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-semibold">InnovativeFlow</span>
+              <span className="text-xl font-semibold">FocusedGov</span>
             </div>
             <div className="hidden md:flex items-center gap-8">
               <Link href="#features" className="text-sm hover:text-primary transition-colors">Features</Link>
@@ -307,7 +307,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-24 text-center space-y-8">
           <h2 className="text-4xl sm:text-5xl font-semibold">Ready to Transform Your Exam Prep?</h2>
           <p className="text-lg text-muted-foreground">
-            Join thousands of students who are acing their exams with InnovativeFlow.
+            Join thousands of students who are acing their exams with FocusedGov.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/signup">
@@ -316,7 +316,7 @@ export default function LandingPage() {
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </Link>
-            <Link href="mailto:support@innovativeflow.com">
+            <Link href="mailto:support@focusedgov.com">
               <Button size="lg" variant="outline">
                 Contact Sales
               </Button>
@@ -334,7 +334,7 @@ export default function LandingPage() {
                 <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                   <Brain className="w-5 h-5 text-primary-foreground" />
                 </div>
-                <span className="font-semibold">InnovativeFlow</span>
+                <span className="font-semibold">FocusedGov</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Intelligent exam preparation for ambitious students.
@@ -365,7 +365,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2026 InnovativeFlow. All rights reserved.</p>
+            <p>&copy; 2026 FocusedGov. All rights reserved.</p>
           </div>
         </div>
       </footer>

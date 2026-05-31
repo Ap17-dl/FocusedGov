@@ -12,7 +12,7 @@ export default function OnboardingPage() {
 
   const steps = [
     {
-      title: 'Welcome to InnovativeFlow!',
+      title: 'Welcome to FocusedGov!',
       description: 'We&apos;re excited to help you ace your exams. Let&apos;s get you started.',
       icon: Brain,
       content: (
@@ -24,9 +24,9 @@ export default function OnboardingPage() {
             <div className="flex gap-4">
               <div className="flex-shrink-0">
                 <BookOpen className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h4 className="font-semibold">Smart Study Plans</h4>
+                  <p className="text-muted-foreground">
+                    FocusedGov uses AI to create personalized learning experiences tailored to your specific exam and goals.
+                  </p>
                 <p className="text-sm text-muted-foreground">Personalized learning paths based on your strengths</p>
               </div>
             </div>
@@ -110,7 +110,7 @@ export default function OnboardingPage() {
                 name="schedule"
                 className="mr-3"
               />
-              <span className="font-semibold">Flexible (30 min+/day)</span>
+                      <span className="text-xl font-semibold">FocusedGov</span>
               <p className="text-sm text-muted-foreground ml-6">Build consistency gradually</p>
             </label>
           </div>

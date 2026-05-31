@@ -12,7 +12,7 @@ export default function NotFound() {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <Brain className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-semibold">InnovativeFlow</span>
+            <span className="text-xl font-semibold">FocusedGov</span>
           </Link>
         </div>
       </header>
@@ -45,7 +45,7 @@ export default function NotFound() {
 
           <div className="pt-8 border-t border-border">
             <p className="text-sm text-muted-foreground">
-              Need help? <Link href="mailto:support@innovativeflow.com" className="text-primary hover:underline">Contact support</Link>
+              Need help? <Link href="mailto:support@focusedgov.com" className="text-primary hover:underline">Contact support</Link>
             </p>
           </div>
         </div>
