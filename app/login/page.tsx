@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { Brain, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -31,6 +30,7 @@ export default function LoginPage() {
       }
 
       console.log('[v0] Login attempt:', { email })
+      const { supabase } = await import('@/lib/supabase')
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,

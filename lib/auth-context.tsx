@@ -2,7 +2,10 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { User } from '@supabase/supabase-js'
-import { supabase } from './supabase'
+import dynamic from 'next/dynamic'
+
+// Dynamically import supabase to prevent SSR issues
+const supabaseModule = dynamic(() => import('./supabase'), { ssr: false })
 
 type AuthContextType = {
   user: User | null
@@ -19,6 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       try {
+        const { supabase } = await import('./supabase')
         const {
           data: { session },
         } = await supabase.auth.getSession()
@@ -32,16 +36,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initAuth()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
+    let subscription: any = null
+    const setupSubscription = async () => {
+      try {
+        const { supabase } = await import('./supabase')
+        const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+          setUser(session?.user ?? null)
+        })
+        subscription = data
+      } catch (error) {
+        console.error('Error setting up auth subscription:', error)
+      }
+    }
 
-    return () => subscription?.unsubscribe()
+    setupSubscription()
+
+    return () => subscription?.subscription?.unsubscribe()
   }, [])
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
+    try {
+      const { supabase } = await import('./supabase')
+      await supabase.auth.signOut()
+      setUser(null)
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
   }
 
   return (

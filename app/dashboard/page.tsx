@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { BookOpen, Clock, Target, Zap, TrendingUp, Calendar, AlertCircle, LogOut } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
-import { supabase } from '@/lib/supabase'
 
 export default function DashboardPage() {
   const { user, loading, signOut } = useAuth()
@@ -28,6 +27,7 @@ export default function DashboardPage() {
 
     const fetchStats = async () => {
       try {
+        const { supabase } = await import('@/lib/supabase')
         const {
           data: { session },
         } = await supabase.auth.getSession()
