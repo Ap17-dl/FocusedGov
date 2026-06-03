@@ -1,13 +1,22 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Send, Lightbulb, ThumbsUp, ThumbsDown, Copy } from 'lucide-react'
+import { Send, Lightbulb, ThumbsUp, ThumbsDown, Copy, AlertCircle } from 'lucide-react'
+import { useAuth } from '@/lib/auth-context'
+
+interface Message {
+  role: 'user' | 'mentor'
+  content: string
+}
 
 export default function MentorPage() {
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'mentor'; content: string }>>([
+  const { user, loading } = useAuth()
+  const router = useRouter()
+  const [messages, setMessages] = useState<Message[]>([
     {
       role: 'mentor',
       content: 'Hello! I\'m your AI Mentor, here to help you prepare for your exam. Feel free to ask me anything about your studies, exam strategies, or specific topics. What would you like to focus on today?',
@@ -15,27 +24,74 @@ export default function MentorPage() {
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login')
+    }
+  }, [user, loading, router])
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim()) return
+    if (!input.trim() || isLoading) return
 
+    setError(null)
+    const userMessage = input.trim()
+    
     // Add user message
-    setMessages([...messages, { role: 'user', content: input }])
+    setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
     setInput('')
     setIsLoading(true)
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Get session token
+      const { supabase } = await import('@/lib/supabase')
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      if (!session) {
+        setError('Session expired. Please log in again.')
+        router.push('/login')
+        return
+      }
+
+      // Call chat API with conversation history
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          conversationHistory: messages.filter((m) => m.role === 'mentor').slice(-5), // Last 5 mentor messages for context
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        setError(errorData.error || 'Failed to get AI response')
+        setMessages((prev) => prev.slice(0, -1)) // Remove user message if failed
+        return
+      }
+
+      const data = await response.json()
       setMessages((prev) => [
         ...prev,
         {
           role: 'mentor',
-          content: `Great question! Let me help you with that. Based on your learning pattern and exam requirements, here's what I recommend:\n\n1. Focus on understanding the core concepts first\n2. Practice with previous year questions\n3. Review your mistakes and learn from them\n4. Use spaced repetition for better retention\n\nWould you like me to explain any specific concept or create a focused study plan for you?`,
+          content: data.response,
         },
       ])
+    } catch (err) {
+      console.error('[v0] Chat error:', err)
+      setError('Failed to connect to AI Mentor. Please try again.')
+      setMessages((prev) => prev.slice(0, -1)) // Remove user message if failed
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   const suggestedQuestions = [
@@ -45,6 +101,21 @@ export default function MentorPage() {
     'Create a 30-day study plan for me',
   ]
 
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto h-full flex flex-col items-center justify-center space-y-8">
+        <div className="text-center">
+          <div className="animate-spin inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+          <p className="mt-4 text-muted-foreground">Loading AI Mentor...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
+
   return (
     <div className="max-w-4xl mx-auto h-full flex flex-col space-y-8">
       {/* Header */}
@@ -52,6 +123,17 @@ export default function MentorPage() {
         <h1 className="text-3xl font-semibold">AI Mentor Chat</h1>
         <p className="text-muted-foreground">Get personalized guidance from your AI mentor anytime</p>
       </div>
+
+      {/* Error Alert */}
+      {error && (
+        <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg flex gap-3">
+          <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-destructive">Error</p>
+            <p className="text-sm text-destructive/80">{error}</p>
+          </div>
+        </div>
+      )}
 
       {/* Chat Container */}
       <div className="flex-1 flex flex-col gap-6">

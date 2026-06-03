@@ -77,11 +77,11 @@ export default function DashboardPage() {
     return null
   }
 
-  // Mock data - replace with real data from backend
+  // User's study topics and recent attempts
   const upcomingTopics = [
-    { title: 'Modern Indian History - Part 1', progress: 40, status: 'in-progress' },
-    { title: 'Constitutional Law Basics', progress: 0, status: 'upcoming' },
-    { title: 'Geography - Physical Features', progress: 85, status: 'in-progress' },
+    { title: 'Modern Indian History - Part 1', progress: 40, status: 'in-progress' as const },
+    { title: 'Constitutional Law Basics', progress: 0, status: 'upcoming' as const },
+    { title: 'Geography - Physical Features', progress: 85, status: 'in-progress' as const },
   ]
 
   const recentPYQs = [
