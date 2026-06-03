@@ -53,8 +53,8 @@ export default function OnboardingPage() {
       ),
     },
     {
-      title: 'How You&apos;ll Study',
-      description: 'A calm, distraction-free learning experience designed for serious students.',
+      title: "How You'll Study",
+      description: "A calm, distraction-free learning experience designed for serious students.",
       icon: Zap,
       content: (
         <div className="space-y-6">
@@ -118,7 +118,7 @@ export default function OnboardingPage() {
       ),
     },
     {
-      title: 'You&apos;re All Set!',
+      title: "You're All Set!",
       description: 'Your personalized learning journey is ready to begin.',
       icon: CheckCircle2,
       content: (
