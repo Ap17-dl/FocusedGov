@@ -52,6 +52,54 @@ export default function SignupPage() {
     setStep(2)
   }
 
+  const handleGoogleSignup = async () => {
+    try {
+      setIsLoading(true)
+      setError('')
+      const { supabase } = await import('@/lib/supabase')
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (oauthError) {
+        setError(oauthError.message || 'Google signup failed')
+        setIsLoading(false)
+        return
+      }
+    } catch (err) {
+      console.error('Google signup error:', err)
+      setError('Google signup failed. Please try again.')
+      setIsLoading(false)
+    }
+  }
+
+  const handleGitHubSignup = async () => {
+    try {
+      setIsLoading(true)
+      setError('')
+      const { supabase } = await import('@/lib/supabase')
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (oauthError) {
+        setError(oauthError.message || 'GitHub signup failed')
+        setIsLoading(false)
+        return
+      }
+    } catch (err) {
+      console.error('GitHub signup error:', err)
+      setError('GitHub signup failed. Please try again.')
+      setIsLoading(false)
+    }
+  }
+
   const handleStep2Submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -306,10 +354,20 @@ export default function SignupPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline">
+              <Button 
+                type="button"
+                variant="outline"
+                onClick={handleGoogleSignup}
+                disabled={isLoading}
+              >
                 Google
               </Button>
-              <Button variant="outline">
+              <Button 
+                type="button"
+                variant="outline"
+                onClick={handleGitHubSignup}
+                disabled={isLoading}
+              >
                 GitHub
               </Button>
             </div>

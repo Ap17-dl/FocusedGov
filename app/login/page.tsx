@@ -17,7 +17,53 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleGoogleLogin = async () => {
+    try {
+      setIsLoading(true)
+      setError('')
+      const { supabase } = await import('@/lib/supabase')
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (oauthError) {
+        setError(oauthError.message || 'Google login failed')
+        setIsLoading(false)
+        return
+      }
+    } catch (err) {
+      console.error('Google login error:', err)
+      setError('Google login failed. Please try again.')
+      setIsLoading(false)
+    }
+  }
+
+  const handleGitHubLogin = async () => {
+    try {
+      setIsLoading(true)
+      setError('')
+      const { supabase } = await import('@/lib/supabase')
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (oauthError) {
+        setError(oauthError.message || 'GitHub login failed')
+        setIsLoading(false)
+        return
+      }
+    } catch (err) {
+      console.error('GitHub login error:', err)
+      setError('GitHub login failed. Please try again.')
+      setIsLoading(false)
+    }
+  }
     e.preventDefault()
     setError('')
     setIsLoading(true)
@@ -102,10 +148,20 @@ export default function LoginPage() {
                   <Label htmlFor="password">Password</Label>
                   <Link href="/forgot-password" className="text-xs text-primary hover:underline">
                     Forgot password?
-                  </Link>
-                </div>
-                <div className="relative">
-                  <Input
+                  </Li
+                type="button"
+                variant="outline" 
+                disabled={isLoading}
+                onClick={handleGoogleLogin}
+              >
+                Google
+              </Button>
+              <Button 
+                type="button"
+                variant="outline" 
+                disabled={isLoading}
+                onClick={handleGitHubLogin}
+              
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
