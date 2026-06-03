@@ -1,21 +1,19 @@
-import OpenAI from 'openai'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
-let openai: OpenAI | null = null
+let gemini: GoogleGenerativeAI | null = null
 
-// Initialize OpenAI only if API key is available and we're not in build-time
-if (typeof process !== 'undefined' && process.env.OPENAI_API_KEY) {
+// Initialize Gemini only if API key is available and we're not in build-time
+if (typeof process !== 'undefined' && process.env.GOOGLE_API_KEY) {
   try {
-    openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    })
+    gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
   } catch (error) {
-    console.warn('[v0] Failed to initialize OpenAI client:', error)
+    console.warn('[v0] Failed to initialize Gemini client:', error)
   }
 } else if (typeof process !== 'undefined') {
-  console.warn('[v0] OPENAI_API_KEY environment variable is not set. AI Mentor features will not work.')
+  console.warn('[v0] GOOGLE_API_KEY environment variable is not set. AI Mentor features will not work.')
 }
 
-export const getOpenAI = () => openai
+export const getGemini = () => gemini
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
@@ -31,9 +29,9 @@ export async function generateMentorResponse(
     level?: string
   }
 ): Promise<string> {
-  const client = getOpenAI()
+  const client = getGemini()
   if (!client) {
-    throw new Error('OPENAI_API_KEY is not configured')
+    throw new Error('GOOGLE_API_KEY is not configured')
   }
 
   const systemPrompt = `You are an expert AI Mentor helping students prepare for competitive exams like UPSC, IIT-JEE, NEET, and other standardized tests. 
@@ -52,32 +50,40 @@ ${userContext?.focusAreas ? `- Priority areas: ${userContext.focusAreas.join(', 
 
 Always be encouraging, patient, and supportive. Provide specific, detailed answers rather than generic responses.`
 
-  const messages: ChatMessage[] = [
-    { role: 'system', content: systemPrompt },
-    ...conversationHistory,
-    { role: 'user', content: userMessage },
-  ]
-
   try {
-    const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: messages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-      })),
-      temperature: 0.7,
-      max_tokens: 1000,
-      top_p: 0.9,
+    const model = client.getGenerativeModel({ model: 'gemini-1.5-flash' })
+
+    // Build conversation history for context
+    const history = conversationHistory.map((msg) => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }],
+    }))
+
+    // Start chat session with system prompt and history
+    const chat = model.startChat({
+      history: [
+        {
+          role: 'user',
+          parts: [{ text: systemPrompt }],
+        },
+        {
+          role: 'model',
+          parts: [{ text: 'Understood. I will follow these guidelines as your AI Mentor.' }],
+        },
+        ...history,
+      ],
     })
 
-    const assistantMessage = response.choices[0]?.message?.content
+    const response = await chat.sendMessage(userMessage)
+    const assistantMessage = response.response.text()
+
     if (!assistantMessage) {
-      throw new Error('No response from OpenAI')
+      throw new Error('No response from Gemini')
     }
 
     return assistantMessage
   } catch (error) {
-    console.error('[v0] OpenAI API error:', error)
+    console.error('[v0] Gemini API error:', error)
     throw error
   }
 }
@@ -87,42 +93,25 @@ export async function generateStudyPlan(
   daysAvailable: number,
   currentLevel: string
 ): Promise<string> {
-  const client = getOpenAI()
+  const client = getGemini()
   if (!client) {
-    throw new Error('OPENAI_API_KEY is not configured')
+    throw new Error('GOOGLE_API_KEY is not configured')
   }
 
-  const messages: ChatMessage[] = [
-    {
-      role: 'system',
-      content:
-        'You are an expert educational planner. Create detailed, structured study plans that are realistic and achievable.',
-    },
-    {
-      role: 'user',
-      content: `Create a ${daysAvailable}-day study plan for learning "${topic}". Current knowledge level: ${currentLevel}. Format as a structured day-by-day plan with specific topics, time allocations, and practice recommendations.`,
-    },
-  ]
+  const prompt = `You are an expert educational planner. Create a ${daysAvailable}-day study plan for learning "${topic}". Current knowledge level: ${currentLevel}. Format as a structured day-by-day plan with specific topics, time allocations, and practice recommendations.`
 
   try {
-    const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: messages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-      })),
-      temperature: 0.7,
-      max_tokens: 1500,
-    })
+    const model = client.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const response = await model.generateContent(prompt)
+    const plan = response.response.text()
 
-    const plan = response.choices[0]?.message?.content
     if (!plan) {
-      throw new Error('No response from OpenAI')
+      throw new Error('No response from Gemini')
     }
 
     return plan
   } catch (error) {
-    console.error('[v0] OpenAI Study Plan API error:', error)
+    console.error('[v0] Gemini Study Plan API error:', error)
     throw error
   }
 }
@@ -138,20 +127,12 @@ export async function evaluateAnswer(
   strengths: string[]
   improvements: string[]
 }> {
-  const client = getOpenAI()
+  const client = getGemini()
   if (!client) {
-    throw new Error('OPENAI_API_KEY is not configured')
+    throw new Error('GOOGLE_API_KEY is not configured')
   }
 
-  const messages: ChatMessage[] = [
-    {
-      role: 'system',
-      content:
-        'You are an expert exam evaluator. Evaluate student answers objectively, provide scores out of 10, and give constructive feedback.',
-    },
-    {
-      role: 'user',
-      content: `Evaluate this ${examType} answer:
+  const prompt = `You are an expert exam evaluator. Evaluate this ${examType} answer:
 Question: ${question}
 Student's Answer: ${studentAnswer}
 Model Answer: ${correctAnswer}
@@ -162,30 +143,21 @@ Provide your response in the following JSON format:
   "feedback": "<overall feedback>",
   "strengths": ["<strength1>", "<strength2>"],
   "improvements": ["<improvement1>", "<improvement2>"]
-}`,
-    },
-  ]
+}`
 
   try {
-    const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: messages.map(msg => ({
-        role: msg.role,
-        content: msg.content,
-      })),
-      temperature: 0.5,
-      max_tokens: 500,
-    })
+    const model = client.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const response = await model.generateContent(prompt)
+    const responseText = response.response.text()
 
-    const responseText = response.choices[0]?.message?.content
     if (!responseText) {
-      throw new Error('No response from OpenAI')
+      throw new Error('No response from Gemini')
     }
 
     const evaluation = JSON.parse(responseText)
     return evaluation
   } catch (error) {
-    console.error('[v0] OpenAI Evaluation API error:', error)
+    console.error('[v0] Gemini Evaluation API error:', error)
     throw error
   }
 }

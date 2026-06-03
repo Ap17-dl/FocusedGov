@@ -47,10 +47,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 401 })
     }
 
-    // Check if OpenAI API key is configured
-    if (!process.env.OPENAI_API_KEY) {
+    // Check if Gemini API key is configured
+    if (!process.env.GOOGLE_API_KEY) {
       return NextResponse.json(
-        { error: 'AI Mentor is not configured. Please add OPENAI_API_KEY to environment variables.' },
+        { error: 'AI Mentor is not configured. Please add GOOGLE_API_KEY to environment variables.' },
         { status: 503 }
       )
     }
@@ -86,17 +86,17 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[v0] Chat API error:', error)
     
-    // Handle specific OpenAI errors
+    // Handle specific Gemini errors
     if (error instanceof Error) {
-      if (error.message.includes('401')) {
+      if (error.message.includes('401') || error.message.includes('INVALID_ARGUMENT')) {
         return NextResponse.json(
-          { error: 'Invalid OpenAI API key. Please check your configuration.' },
+          { error: 'Invalid Gemini API key. Please check your configuration.' },
           { status: 503 }
         )
       }
-      if (error.message.includes('429')) {
+      if (error.message.includes('429') || error.message.includes('RESOURCE_EXHAUSTED')) {
         return NextResponse.json(
-          { error: 'OpenAI API rate limit exceeded. Please try again later.' },
+          { error: 'Gemini API rate limit exceeded. Please try again later.' },
           { status: 429 }
         )
       }
