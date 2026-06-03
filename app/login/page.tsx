@@ -150,20 +150,10 @@ export default function LoginPage() {
                   <Label htmlFor="password">Password</Label>
                   <Link href="/forgot-password" className="text-xs text-primary hover:underline">
                     Forgot password?
-                  </Li
-                type="button"
-                variant="outline" 
-                disabled={isLoading}
-                onClick={handleGoogleLogin}
-              >
-                Google
-              </Button>
-              <Button 
-                type="button"
-                variant="outline" 
-                disabled={isLoading}
-                onClick={handleGitHubLogin}
-              
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
@@ -206,10 +196,20 @@ export default function LoginPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" disabled={isLoading}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isLoading}
+                onClick={handleGoogleLogin}
+              >
                 Google
               </Button>
-              <Button variant="outline" disabled={isLoading}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isLoading}
+                onClick={handleGitHubLogin}
+              >
                 GitHub
               </Button>
             </div>
