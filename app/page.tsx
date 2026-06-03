@@ -27,7 +27,7 @@ export default function LandingPage() {
                 <Button variant="ghost" size="sm">Sign In</Button>
               </Link>
               <Link href="/signup">
-                <Button size="sm" className="bg-primary hover:bg-primary/90">Get Started</Button>
+                <Button size="sm" className="bg-primary hover:bg-primary/90">Sign Up</Button>
               </Link>
             </div>
           </div>
