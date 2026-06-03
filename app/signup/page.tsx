@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
-import { Brain, Eye, EyeOff, ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { Brain, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
 
 export default function SignupPage() {
   const [step, setStep] = useState(1)
@@ -22,6 +24,7 @@ export default function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const router = useRouter()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -58,18 +61,35 @@ export default function SignupPage() {
     try {
       if (!formData.exam || !formData.targetScore) {
         setError('Please select an exam and target score')
+        setIsLoading(false)
         return
       }
 
-      // TODO: Replace with actual registration
       console.log('[v0] Signup attempt:', { name: formData.name, email: formData.email, exam: formData.exam })
-      await new Promise(resolve => setTimeout(resolve, 1000))
 
-      // Simulated successful signup
-      window.location.href = '/onboarding'
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.name,
+            exam: formData.exam,
+            target_score: formData.targetScore,
+          },
+        },
+      })
+
+      if (signUpError) {
+        setError(signUpError.message || 'Signup failed. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
+      console.log('[v0] Signup successful')
+      router.push('/dashboard')
     } catch (err) {
+      console.error('[v0] Signup error:', err)
       setError('Signup failed. Please try again.')
-    } finally {
       setIsLoading(false)
     }
   }

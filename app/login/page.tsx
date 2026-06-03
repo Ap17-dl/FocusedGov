@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { Brain, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -14,6 +16,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,20 +24,29 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // TODO: Replace with actual authentication
-      console.log('[v0] Login attempt:', { email })
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
       if (!email || !password) {
         setError('Please fill in all fields')
+        setIsLoading(false)
         return
       }
 
-      // Simulated successful login
-      window.location.href = '/dashboard'
+      console.log('[v0] Login attempt:', { email })
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (signInError) {
+        setError(signInError.message || 'Authentication failed. Please try again.')
+        setIsLoading(false)
+        return
+      }
+
+      console.log('[v0] Login successful')
+      router.push('/dashboard')
     } catch (err) {
+      console.error('[v0] Login error:', err)
       setError('Authentication failed. Please try again.')
-    } finally {
       setIsLoading(false)
     }
   }

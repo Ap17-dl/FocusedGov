@@ -131,15 +131,15 @@ export default function PricingPage() {
 
       {/* Pricing Cards */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {plans.map((plan) => (
             <div
               key={plan.name}
               className={`relative rounded-lg border transition-all duration-300 ${
                 plan.highlighted
-                  ? 'border-primary border-2 shadow-lg scale-105 lg:scale-110'
+                  ? 'border-primary border-2 shadow-lg sm:scale-105 lg:scale-110'
                   : 'border-border hover:border-primary/50'
-              } p-8 bg-card`}
+              } p-6 sm:p-8 bg-card`}
             >
               {plan.highlighted && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
