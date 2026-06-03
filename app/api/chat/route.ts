@@ -49,11 +49,14 @@ export async function POST(request: NextRequest) {
 
     // Check if Gemini API key is configured
     if (!process.env.GOOGLE_API_KEY) {
+      console.error('[v0] GOOGLE_API_KEY is not set in environment variables')
       return NextResponse.json(
         { error: 'AI Mentor is not configured. Please add GOOGLE_API_KEY to environment variables.' },
         { status: 503 }
       )
     }
+
+    console.log('[v0] GOOGLE_API_KEY is present, proceeding with chat')
 
     // Convert conversation history to ChatMessage format
     const formattedHistory: ChatMessage[] = conversationHistory.map((msg: any) => ({
@@ -84,24 +87,41 @@ export async function POST(request: NextRequest) {
       userId: user.id,
     })
   } catch (error) {
-    console.error('[v0] Chat API error:', error)
+    console.error('[v0] Chat API error details:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    })
     
     // Handle specific Gemini errors
     if (error instanceof Error) {
-      if (error.message.includes('401') || error.message.includes('INVALID_ARGUMENT')) {
+      const errorMsg = error.message.toLowerCase()
+      
+      if (errorMsg.includes('api key') || errorMsg.includes('invalid argument') || errorMsg.includes('401')) {
+        console.error('[v0] API key error detected:', error.message)
         return NextResponse.json(
-          { error: 'Invalid Gemini API key. Please check your configuration.' },
+          { error: 'Invalid Gemini API key. Please check your GOOGLE_API_KEY configuration.' },
           { status: 503 }
         )
       }
-      if (error.message.includes('429') || error.message.includes('RESOURCE_EXHAUSTED')) {
+      
+      if (errorMsg.includes('429') || errorMsg.includes('resource_exhausted') || errorMsg.includes('rate limit')) {
         return NextResponse.json(
           { error: 'Gemini API rate limit exceeded. Please try again later.' },
           { status: 429 }
         )
       }
+
+      if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
+        return NextResponse.json(
+          { error: 'Network error connecting to Gemini API. Please check your internet connection.' },
+          { status: 503 }
+        )
+      }
     }
 
-    return NextResponse.json({ error: 'Failed to generate response' }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Failed to generate response. Please try again.' 
+    }, { status: 500 })
   }
 }
