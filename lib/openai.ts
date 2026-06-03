@@ -1,19 +1,30 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-let gemini: GoogleGenerativeAI | null = null
+let geminiInstance: GoogleGenerativeAI | null = null
 
-// Initialize Gemini only if API key is available and we're not in build-time
-if (typeof process !== 'undefined' && process.env.GOOGLE_API_KEY) {
-  try {
-    gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
-  } catch (error) {
-    console.warn('[v0] Failed to initialize Gemini client:', error)
+// Lazy initialize Gemini client - only when needed
+export const getGemini = (): GoogleGenerativeAI | null => {
+  // If already initialized, return cached instance
+  if (geminiInstance) {
+    return geminiInstance
   }
-} else if (typeof process !== 'undefined') {
-  console.warn('[v0] GOOGLE_API_KEY environment variable is not set. AI Mentor features will not work.')
-}
 
-export const getGemini = () => gemini
+  const apiKey = process.env.GOOGLE_API_KEY
+
+  if (!apiKey) {
+    console.warn('[v0] GOOGLE_API_KEY environment variable is not set. AI Mentor features will not work.')
+    return null
+  }
+
+  try {
+    geminiInstance = new GoogleGenerativeAI(apiKey)
+    console.log('[v0] Gemini client initialized successfully')
+    return geminiInstance
+  } catch (error) {
+    console.error('[v0] Failed to initialize Gemini client:', error)
+    return null
+  }
+}
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
