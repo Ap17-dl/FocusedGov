@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { ArrowRight, BookOpen, Brain, BarChart3, MessageCircle, Zap } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function LandingPage() {
   return (
@@ -13,7 +14,7 @@ export default function LandingPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <Brain className="w-5 h-5 text-primary-foreground" />
+                <Image src="/logo.png" alt="FocusedGov Logo" width={40} height={40} />
               </div>
               <span className="text-xl font-semibold">FocusedGov</span>
             </div>

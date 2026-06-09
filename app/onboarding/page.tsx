@@ -13,12 +13,12 @@ export default function OnboardingPage() {
   const steps = [
     {
       title: 'Welcome to FocusedGov!',
-      description: 'We&apos;re excited to help you ace your exams. Let&apos;s get you started.',
+      description: "We're excited to help you ace your exams. Let's get you started.",
       icon: Brain,
       content: (
         <div className="space-y-6">
           <p className="text-muted-foreground">
-            InnovativeFlow uses AI to create personalized learning experiences tailored to your specific exam and goals.
+            FocusedGov uses AI to create personalized learning experiences tailored to your specific exam and goals.
           </p>
           <div className="space-y-4">
             <div className="flex gap-4">

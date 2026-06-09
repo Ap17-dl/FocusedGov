@@ -4,9 +4,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 import { User } from '@supabase/supabase-js'
 import dynamic from 'next/dynamic'
 
-// Dynamically import supabase to prevent SSR issues
-const supabaseModule = dynamic(() => import('./supabase'), { ssr: false })
-
 type AuthContextType = {
   user: User | null
   loading: boolean

@@ -174,7 +174,7 @@ export default function ResourcesPage() {
 
       {/* Resources Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredResources.map((resource) => (
+        {filteredResources.map((resource: Resource) => (
           <Card key={resource.id} className="p-6 space-y-4 hover:border-primary transition-colors group cursor-pointer">
             {/* Type Badge */}
             <div className="flex items-center justify-between">
@@ -210,7 +210,7 @@ export default function ResourcesPage() {
                 <>
                   <p>Duration: {resource.duration}</p>
                   <p className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" /> {resource.views.toLocaleString()} views
+                    <Eye className="w-3 h-3" /> {resource.views?.toLocaleString() ?? ''} views
                   </p>
                 </>
               )}
