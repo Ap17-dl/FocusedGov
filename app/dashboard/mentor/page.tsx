@@ -16,28 +16,65 @@ export default function MentorPage() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim()) return
+const handleSendMessage = async (e: React.FormEvent) => {
+  e.preventDefault()
 
-    // Add user message
-    setMessages([...messages, { role: 'user', content: input }])
-    setInput('')
-    setIsLoading(true)
+  if (!input.trim()) return
 
-    // Simulate AI response
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'mentor',
-          content: `Great question! Let me help you with that. Based on your learning pattern and exam requirements, here's what I recommend:\n\n1. Focus on understanding the core concepts first\n2. Practice with previous year questions\n3. Review your mistakes and learn from them\n4. Use spaced repetition for better retention\n\nWould you like me to explain any specific concept or create a focused study plan for you?`,
-        },
-      ])
-      setIsLoading(false)
-    }, 1000)
+  const userMessage = input
+
+  // Add user message
+  setMessages((prev) => [
+    ...prev,
+    {
+      role: 'user',
+      content: userMessage,
+    },
+  ])
+
+  setInput('')
+  setIsLoading(true)
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: userMessage,
+      }),
+    })
+
+    const data = await response.json()
+
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to get response')
+    }
+
+    // Add mentor response
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: 'mentor',
+        content: data.response,
+      },
+    ])
+  } catch (error: any) {
+    console.error('CHAT ERROR:', error)
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: 'mentor',
+        content:
+          'Sorry, I encountered an error while connecting to the AI service.',
+      },
+    ])
+  } finally {
+    setIsLoading(false)
   }
-
+}
   const suggestedQuestions = [
     'How should I prepare for Essay writing?',
     'What are the most important topics for UPSC?',

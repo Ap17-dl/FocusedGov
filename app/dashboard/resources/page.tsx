@@ -5,11 +5,33 @@ import { Button } from '@/components/ui/button'
 import { BookOpen, FileText, Video, Download, Search, Filter, Star, Eye } from 'lucide-react'
 import { useState } from 'react'
 
+interface BaseResource {
+  id: number
+  title: string
+  category: string
+  rating: number
+  downloads: number
+}
+
+interface PDFResource extends BaseResource {
+  type: 'pdf'
+  size: string
+  pages: number
+}
+
+interface VideoResource extends BaseResource {
+  type: 'video'
+  duration: string
+  views: number
+}
+
+type Resource = PDFResource | VideoResource
+
 export default function ResourcesPage() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
 
-  const resources = [
+  const resources: Resource[] = [
     {
       id: 1,
       title: 'Modern Indian History: Complete Guide',
