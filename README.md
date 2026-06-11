@@ -84,9 +84,22 @@ Focused Gov focuses on:
 FocusedGov/
 ├── app/
 ├── components/
+├── hooks/
 ├── lib/
 ├── public/
 ├── styles/
-├── utils/
 ├── supabase/
-└── README.md
+├── .gitignore
+├── README.md
+├── components.json
+├── next.config.mjs
+├── package.json
+├── postcss.config.mjs
+├── tsconfig.json
+└── next-env.d.ts
+```
+
+---
+
+## Author 
+- Ankush Pratham
