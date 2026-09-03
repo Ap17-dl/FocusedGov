@@ -16,65 +16,76 @@ export default function MentorPage() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-const handleSendMessage = async (e: React.FormEvent) => {
-  e.preventDefault()
+  const handleSendMessage = async (e?: React.FormEvent, customPrompt?: string) => {
+    if (e) e.preventDefault()
 
-  if (!input.trim()) return
+    const promptToSend = (customPrompt ?? input).trim()
+    if (!promptToSend || isLoading) return
 
-  const userMessage = input
-
-  // Add user message
-  setMessages((prev) => [
-    ...prev,
-    {
-      role: 'user',
-      content: userMessage,
-    },
-  ])
-
-  setInput('')
-  setIsLoading(true)
-
-  try {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const newMessages = [
+      ...messages,
+      {
+        role: 'user' as const,
+        content: promptToSend,
       },
-      body: JSON.stringify({
-        message: userMessage,
-      }),
-    })
+    ]
 
-    const data = await response.json()
+    setMessages(newMessages)
+    setInput('')
+    setIsLoading(true)
 
-    if (!data.success) {
-      throw new Error(data.error || 'Failed to get response')
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: promptToSend,
+          messages: newMessages.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to get response')
+      }
+
+      // Add mentor response
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'mentor',
+          content: data.response,
+        },
+      ])
+    } catch (error: any) {
+      console.error('CHAT ERROR:', error)
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'mentor',
+          content:
+            error?.message
+              ? `Sorry, I encountered an issue: ${error.message}`
+              : 'Sorry, I encountered an error while connecting to the AI service.',
+        },
+      ])
+    } finally {
+      setIsLoading(false)
     }
-
-    // Add mentor response
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: 'mentor',
-        content: data.response,
-      },
-    ])
-  } catch (error: any) {
-    console.error('CHAT ERROR:', error)
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: 'mentor',
-        content:
-          'Sorry, I encountered an error while connecting to the AI service.',
-      },
-    ])
-  } finally {
-    setIsLoading(false)
   }
-}
+
+  const handleTopicClick = (topic: string) => {
+    const prompt = `Can you guide me on key concepts and study strategy for ${topic}?`
+    handleSendMessage(undefined, prompt)
+  }
+
   const suggestedQuestions = [
     'How should I prepare for Essay writing?',
     'What are the most important topics for UPSC?',
@@ -121,7 +132,8 @@ const handleSendMessage = async (e: React.FormEvent) => {
                     ].map((topic) => (
                       <button
                         key={topic}
-                        className="p-3 border border-border rounded-lg hover:bg-secondary transition-colors text-sm font-medium hover:border-primary"
+                        onClick={() => handleTopicClick(topic)}
+                        className="p-3 border border-border rounded-lg hover:bg-secondary transition-colors text-sm font-medium hover:border-primary cursor-pointer text-left"
                       >
                         {topic}
                       </button>
